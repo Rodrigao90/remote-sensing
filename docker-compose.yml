@@ -1,5 +1,7 @@
 services:
   web:
     build: .
+    container_name: "remote-sensing-project"
     ports:
       - "8000:5000"
+    tty: true
