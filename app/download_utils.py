@@ -1,12 +1,13 @@
 from sentinelsat.sentinel import SentinelAPI, read_geojson, geojson_to_wkt
-import os
+from main_utils import *
+import json
 
 
 
 ## Read .txt file containing information (login and password) to access 
 ## the Copernicus Scihub
 
-# - Input - ?
+# - Input - Empty
 # - Output - Login and password
 
 def read_authentication_file():
@@ -18,11 +19,10 @@ def read_authentication_file():
 
 ## Authenticate access to the Copernicus Scihub
 
-# Input - ?
+# Input - Empty
 # Output - API object
 
-def authenticate():
-        
+def authenticate_access():
     login, password = read_authentication_file() 
 
     return SentinelAPI(login,
@@ -32,14 +32,84 @@ def authenticate():
 
 
 
+def request_date():
+    year = input('\nInform year (4 digits): ')
+    month = input('Inform month (2 digits): ')
+    day = input('Inform day (2 digits): ')
+    return year + month + day
+
+
+
+def define_request_json():
+    clear_screen()
+    print('\nInform the initial date: ')
+    i_date = request_date()
+
+    clear_screen()
+    print('\nInform the final date: ')
+    f_date = request_date()
+
+    clear_screen()
+    request_json = {
+            'init_date': i_date,
+            'final_date': f_date,
+            'platform_name': 'Sentinel-1',
+            'product_type' : 'GRD',
+            'sensor_op_mode': 'IW'
+            }
+
+    return request_json
+
+
+
+
+def write_request_json(request_json):
+    with open('request_json.json', 'w') as outfile:
+        json.dump(request_json, outfile)
+
+
+
+def read_request_json():
+    with open('request_json.json', 'r') as infile:
+        return json.load(infile)
+
+
+
+def check_query_information(request_json):
+    clear_screen()
+    print("\nPlease, confirm the information provided: ")
+    print("\nInitial date: ", request_json['init_date'])
+    print("Final date: ", request_json['final_date'])
+    print("Platform name: ", request_json['platform_name'])
+    print("Product type: ", request_json['product_type'])
+    print("Sensor Operational Mode: ", request_json['sensor_op_mode'])
+
+
+
+def confirm_information():
+    confirmation = input('\n\nIs the information provided correct? (y/n)')
+    return confirmation.lower()
+
+
+def request_query_information():
+    c = 'n'
+    while(c == 'n'):
+        request_json = define_request_json()
+        check_query_information(request_json)
+        c = confirm_information()
+
+    clear_screen()
+    write_request_json(request_json)
+
+
+
 ## Get footprint from GeoJSON file
 
 # Input - File .geojson of area of interest
 # Output - Footprint of area of interest
 
-def get_footprint(geojson_file):
-
-    geojson = read_geojson(geojson_file)
+def get_footprint(geojson_file_address):
+    geojson = read_geojson(geojson_file_address)
 
     return geojson_to_wkt(geojson)
 
@@ -50,9 +120,9 @@ def get_footprint(geojson_file):
 # Input - API object and query of Products
 # Output - Dataframe of products
 
-def products_to_dataframe(api, products):
+def products_to_dataframe(api, product):
 
-    return api.to_dataframe(products)
+    return api.to_dataframe(product)
 
 
 

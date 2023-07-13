@@ -1,25 +1,21 @@
 from download_utils import *
-from datetime import date
-import os
+from main_utils import *
 
 
 ## Define search parameters
 
 geojson_file = '../geojson/map.geojson'
 
-date_i = date(2022, 5, 20)
-date_f = date(2022, 6, 6)
+request_query_information()
 
-platform_name = 'Sentinel-1'
-product_type = 'GRD'
-sensor_op_mode = 'IW'
+r_json = read_request_json()
 
 
 ## Authentication
 
-api = authenticate()
+api = authenticate_access()
 
-products_df, count = query(api,date_i,
+'''products_df, count = query(api,date_i,
         date_f,
         platform_name,
         product_type,
@@ -31,6 +27,6 @@ products_ids_list = get_products_IDS_list(products_df)
 check_and_download_products(api,
                             products_names_list,
                             products_ids_list,
-                            count)
+                            count)'''
     
 print("End!")

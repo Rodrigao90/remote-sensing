@@ -1,4 +1,9 @@
-from donwload_api import *
+import os
+
+
+
+def clear_screen():
+    os.system('clear')
 
 def welcome_message():
     print('\nWelcome to CARTOGRAFIAS RÁPIDAS!\n')
