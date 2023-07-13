@@ -29,6 +29,7 @@ def to_lowercase(task):
 def check_task_option(task):
     if task == 'a':
         print('\n"Download products" selected! ')
+        os.system('python3 download.py')
         return 0
 
     elif task == 'b':

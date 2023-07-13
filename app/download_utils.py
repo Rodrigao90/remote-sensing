@@ -119,7 +119,7 @@ def reuse_query_information():
         if(c_r == 'n'):
             request_query_information()
     except:
-        request_query)information()
+        request_query_information()
 
 
 
