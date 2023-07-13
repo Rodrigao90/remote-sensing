@@ -6,7 +6,7 @@ def clear_screen():
     os.system('clear')
 
 def welcome_message():
-    print('\nWelcome to CARTOGRAFIAS RÁPIDAS!\n')
+    print('\nWelcome to CARTOGRAFIAS RAPIDAS!\n')
 
 def task_options():
     task = input('What would you like to do?\n\n' \
