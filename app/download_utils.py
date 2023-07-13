@@ -64,19 +64,18 @@ def define_request_json():
 
 
 def write_request_json(request_json):
-    with open('request_json.json', 'w') as outfile:
+    with open('json/request_json.json', 'w') as outfile:
         json.dump(request_json, outfile)
 
 
 
 def read_request_json():
-    with open('request_json.json', 'r') as infile:
+    with open('json/request_json.json', 'r') as infile:
         return json.load(infile)
 
 
 
 def check_query_information(request_json):
-    clear_screen()
     print("\nPlease, confirm the information provided: ")
     print("\nInitial date: ", request_json['init_date'])
     print("Final date: ", request_json['final_date'])
@@ -91,15 +90,36 @@ def confirm_information():
     return confirmation.lower()
 
 
+
+def confirm_reuse_information():
+    confirmation = input('\n\nDo you wish to reuse the previous query? (y/n)')
+    return confirmation.lower()
+
+
+
 def request_query_information():
-    c = 'n'
-    while(c == 'n'):
+    c_i = 'n'
+    while(c_i == 'n'):
         request_json = define_request_json()
         check_query_information(request_json)
-        c = confirm_information()
+        c_i = confirm_information()
 
     clear_screen()
     write_request_json(request_json)
+
+
+
+def reuse_query_information():
+    clear_screen()
+    print('Last query used: ')
+    try:
+        request_json = read_request_json()
+        check_query_information(request_json)
+        c_r = confirm_reuse_information()
+        if(c_r == 'n'):
+            request_query_information()
+    except:
+        pass
 
 
 
