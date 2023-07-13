@@ -119,7 +119,7 @@ def reuse_query_information():
         if(c_r == 'n'):
             request_query_information()
     except:
-        pass
+        request_query)information()
 
 
 
@@ -179,7 +179,7 @@ def query(api,
     product_type,
     sensor_op_mode):
     
-    footprint = get_footprint('../geojson/map.geojson')
+    footprint = get_footprint('geojson/map.geojson')
 
     prod_count = count_products(api,
         footprint,
@@ -211,7 +211,7 @@ def check_availability(API, product_ID):
 
 
 def download_file(API, product_ID):
-    API.download(product_ID, "../products/")
+    API.download(product_ID, "/products/")
 
 
 
