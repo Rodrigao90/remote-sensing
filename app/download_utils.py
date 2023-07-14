@@ -1,34 +1,6 @@
-from sentinelsat.sentinel import SentinelAPI, read_geojson, geojson_to_wkt
+from sentinelsat.sentinel import read_geojson, geojson_to_wkt
 from main_utils import *
 import json
-
-
-
-## Read .txt file containing information (login and password) to access 
-## the Copernicus Scihub
-
-# - Input - Empty
-# - Output - Login and password
-
-def read_authentication_file():
-    with open('authentication.txt') as f:
-        login, password = f.readlines()
-        return login.strip(), password.strip()
-
-
-
-## Authenticate access to the Copernicus Scihub
-
-# Input - Empty
-# Output - API object
-
-def authenticate_access():
-    login, password = read_authentication_file() 
-
-    return SentinelAPI(login,
-            password,
-            'https://apihub.copernicus.eu/apihub',
-            show_progressbars=True)
 
 
 

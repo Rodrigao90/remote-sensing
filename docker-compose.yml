@@ -2,6 +2,5 @@ services:
   web:
     build: .
     container_name: "remote-sensing-project"
-    ports:
-    - "8000:8000"
-    tty: true
+    volumes:
+    - '/home/rpmonteiro90/Documentos/Sensoriamento-Remoto/remote-sensing/app/:/usr/src/app/'
