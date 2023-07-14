@@ -4,6 +4,6 @@
 
 2. sudo docker run -it remote-sensing-web
 
-3. python3 main.py
+3. python3 app/main.py
 
 
