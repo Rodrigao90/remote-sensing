@@ -123,6 +123,10 @@ def reuse_query_information():
 
 
 
+def retrieve_information_from_json(request_json):
+    return request_json['init_date'], request_json['final_date'], request_json['platform_name'], request_json['product_type'], request_json['sensor_op_mode']
+
+
 ## Get footprint from GeoJSON file
 
 # Input - File .geojson of area of interest
@@ -211,7 +215,7 @@ def check_availability(API, product_ID):
 
 
 def download_file(API, product_ID):
-    API.download(product_ID, "/products/")
+    API.download(product_ID, "products/")
 
 
 
@@ -233,7 +237,7 @@ def get_products_IDS_list(products_DF):
 def check_and_download_products(API,
                                 products_NAMES_list,
                                 products_IDS_list,
-                                prod_count):
+                                prod_count): 
 
     for i in range(prod_count):
     

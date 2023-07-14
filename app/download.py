@@ -8,11 +8,7 @@ reuse_query_information()
 
 r_json = read_request_json()
 
-date_i = r_json['init_date']
-date_f = r_json['final_date']
-platform_name = r_json['platform_name']
-product_type = r_json['product_type']
-sensor_op_mode = r_json['sensor_op_mode']
+date_i, date_f, platform_name, product_type, sensor_op_mode = retrieve_information_from_json(r_json)
 
 
 
@@ -20,7 +16,8 @@ sensor_op_mode = r_json['sensor_op_mode']
 
 api = authenticate_access()
 
-products_df, count = query(api,date_i,
+products_df, count = query(api, 
+        date_i,
         date_f,
         platform_name,
         product_type,
