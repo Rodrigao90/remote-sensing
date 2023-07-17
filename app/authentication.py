@@ -5,7 +5,7 @@ from sentinelsat.sentinel import SentinelAPI
 def read_authentication_file(auth_file_dir):
     """This function reads .txt file that contains the user's login
     and password to authenticate the access to the COPERNICUS SCIHUB platform.
-    :param auth_file_dir: directory of authentication file. 
+    :param auth_file_dir: directory of authentication file.
     """
 
     with open(auth_file_dir) as f:

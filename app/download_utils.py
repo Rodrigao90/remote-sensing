@@ -5,14 +5,60 @@ import json
 
 
 def request_date():
-    year = input('\nInform year (4 digits): ')
-    month = input('Inform month (2 digits): ')
-    day = input('Inform day (2 digits): ')
+    """This function prompts the user to enter the sensing date information.
+    params: .
+    """
+    year = input('\nInform the year (4 digits): ')
+    month = input('Inform the month (2 digits): ')
+    day = input('Inform the day (2 digits): ')
     return year + month + day
 
 
 
+def request_platform_name():
+    """ This function prompts the user to enter the sensing platform name:
+    params: .
+    """
+    platformname = input('\nInform the platform name (Sentinel-1 or Sentinel-2): \n -->')
+    return platformname
+
+
+
+def request_product_type_S1():
+    """ This funtions prompts the user to enter the product type of Sentinel-1
+    sensing platform.
+    params: .
+    """
+    producttype = input('\nInform the product type (SLC or GRD): \n --> ')
+    return producttype
+
+
+
+def request_product_type_S2():
+    """ This funtions prompts the user to enter the product type of Sentinel-2
+    sensing platform.
+    params: .
+    """
+    producttype = input('\nInform the product type (S2MSI2A or S2MSI1C): \n --> ')
+    return producttype
+
+
+
+def request_sensor_op_mode():
+    """ This funtions prompts the user to enter the sensor operational mode
+    of Sentinel-1 sensing platform.
+    params: .
+    """
+    sensor_op_mode = input('\nInform the sensor operational mode (SM, IW, EW, WV): \n --> ')
+    return sensor_op_mode
+
+
+
 def define_request_json():
+    """ This function defines the request json that feeds the query.
+    params: .
+    """
+
     clear_screen()
     print('\nInform the initial date: ')
     i_date = request_date()
@@ -22,32 +68,58 @@ def define_request_json():
     f_date = request_date()
 
     clear_screen()
+    platform_name = request_platform_name()
+
+    if(platform_name == 'Sentinel-1'):
+        clear_screen()
+        product_type = request_product_type_S1()
+        clear_screen()
+        sensor_op_mode = request_sensor_op_mode()
+    elif(platform_name == 'Sentinel-2'):
+        clear_screen()
+        product_type = request_product_type_S2()
+        clear_screen()
+        sensor_op_mode = ' '
+    else:
+        print("Platform name not identified. Exiting...")
+        quit()    
+
     request_json = {
             'init_date': i_date,
             'final_date': f_date,
-            'platform_name': 'Sentinel-1',
-            'product_type' : 'GRD',
-            'sensor_op_mode': 'IW'
+            'platform_name': platform_name,
+            'product_type' : product_type,
+            'sensor_op_mode': sensor_op_mode
             }
 
     return request_json
 
 
 
-
 def write_request_json(request_json):
+    "This function saves in a .json file the information contained in the
+    variable request_json.
+    params: .
+    """
     with open('json/request_json.json', 'w') as outfile:
         json.dump(request_json, outfile)
 
 
 
 def read_request_json():
+    "This function stores in the variable request_json the information contained in the
+    file .json.
+    params: .
+    """
     with open('json/request_json.json', 'r') as infile:
         return json.load(infile)
 
 
 
-def check_query_information(request_json):
+def print_query_information(request_json):
+    """This function prints the query informaion contained in the variable request_json:
+    params: request_json: json containing the query information.
+    """
     print("\nPlease, confirm the information provided: ")
     print("\nInitial date: ", request_json['init_date'])
     print("Final date: ", request_json['final_date'])
@@ -58,13 +130,14 @@ def check_query_information(request_json):
 
 
 def confirm_information():
-    confirmation = input('\n\nIs the information provided correct? (y/n)')
+
+    confirmation = input('\n\nIs the information provided correct? (y/n) \n --> ')
     return confirmation.lower()
 
 
 
 def confirm_reuse_information():
-    confirmation = input('\n\nDo you wish to reuse the previous query? (y/n)')
+    confirmation = input('\n\nDo you wish to reuse the previous query? (y/n) \n --> ')
     return confirmation.lower()
 
 

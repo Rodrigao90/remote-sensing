@@ -4,3 +4,4 @@ services:
     container_name: "remote-sensing-project"
     volumes:
     - '/home/rpmonteiro90/Documentos/Sensoriamento-Remoto/remote-sensing/app/:/usr/src/app/'
+  
