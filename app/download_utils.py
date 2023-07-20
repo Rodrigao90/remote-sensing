@@ -212,12 +212,14 @@ def count_products(api,
             date=(date_I, date_F),
             platformname=platform_name,
             producttype=product_type,
-            sensoroperationalmode=sensor_op_mode)
+            sensoroperationalmode=sensor_op_mode,
+            relativeorbitnumber=111)
     else:
         prod_count = api.count(footprint,
             date=(date_I, date_F),
             platformname=platform_name,
-            producttype=product_type)
+            producttype=product_type,
+            relativeorbitnumber=111)
     
     return prod_count
 
@@ -249,12 +251,14 @@ def query_products(api,
             date=(date_I, date_F),
             platformname=platform_name,
             producttype=product_type,
-            sensoroperationalmode=sensor_op_mode)
+            sensoroperationalmode=sensor_op_mode,
+            relativeorbitnumber=111)
     else:
         products = api.query(footprint,
             date=(date_I, date_F),
             platformname=platform_name,
-            producttype=product_type)
+            producttype=product_type,
+            relativeorbitnumber=111)
         
     return products_to_dataframe(api, products)
 
