@@ -58,7 +58,6 @@ def define_request_json():
     """ This function defines the request json that feeds the query.
     params: .
     """
-
     clear_screen()
     print('\nInform the initial date: ')
     i_date = request_date()
@@ -97,7 +96,7 @@ def define_request_json():
 
 
 def write_request_json(request_json):
-    "This function saves in a .json file the information contained in the
+    """This function saves in a .json file the information contained in the
     variable request_json.
     params: .
     """
@@ -107,7 +106,7 @@ def write_request_json(request_json):
 
 
 def read_request_json():
-    "This function stores in the variable request_json the information contained in the
+    """This function stores in the variable request_json the information contained in the
     file .json.
     params: .
     """
@@ -146,7 +145,7 @@ def request_query_information():
     c_i = 'n'
     while(c_i == 'n'):
         request_json = define_request_json()
-        check_query_information(request_json)
+        print_query_information(request_json)
         c_i = confirm_information()
 
     clear_screen()
@@ -159,7 +158,7 @@ def reuse_query_information():
     print('Last query used: ')
     try:
         request_json = read_request_json()
-        check_query_information(request_json)
+        print_query_information(request_json)
         c_r = confirm_reuse_information()
         if(c_r == 'n'):
             request_query_information()
@@ -172,33 +171,25 @@ def retrieve_information_from_json(request_json):
     return request_json['init_date'], request_json['final_date'], request_json['platform_name'], request_json['product_type'], request_json['sensor_op_mode']
 
 
-## Get footprint from GeoJSON file
-
-# Input - File .geojson of area of interest
-# Output - Footprint of area of interest
 
 def get_footprint(geojson_file_address):
+    """This function reads the footprint information contained in a geojson file:
+    params: geojson_file_address: directory of geojson file containing the footprint information.
+    """
     geojson = read_geojson(geojson_file_address)
 
     return geojson_to_wkt(geojson)
 
 
 
-## Organize products in a dataframe structure
-
-# Input - API object and query of Products
-# Output - Dataframe of products
-
 def products_to_dataframe(api, product):
-
+    """This function converts the product resulting from the query into a dataframe.
+    params: api: api object.
+    params: product: product resulting from the query.
+    """
     return api.to_dataframe(product)
 
 
-
-## Count products queried
-
-# Input - Footprint, Initial date, final date, platform name, product type and sensor operational mode
-# Output - Number of products
 
 def count_products(api,
     footprint,
@@ -207,13 +198,28 @@ def count_products(api,
     platform_name,
     product_type,
     sensor_op_mode):
-
-    return api.count(footprint,
-        date=(date_I, date_F),
-        platformname=platform_name,
-        producttype=product_type,
-        sensoroperationalmode=sensor_op_mode)
-
+    """This function counts the products resulting from the query.
+    params: api: api object.
+    params: footprint: footprint informatio extracted from the geojson file.
+    params: date_I: initial sensing date.
+    params: date_F: final sensing date.
+    params: platform_name: name of the sensing platform.
+    params: product_type: name of product type.
+    params: sensor_op_mode: sensor operational mode.
+    """
+    if(sensor_op_mode != ' '): 
+        prod_count =  api.count(footprint,
+            date=(date_I, date_F),
+            platformname=platform_name,
+            producttype=product_type,
+            sensoroperationalmode=sensor_op_mode)
+    else:
+        prod_count = api.count(footprint,
+            date=(date_I, date_F),
+            platformname=platform_name,
+            producttype=product_type)
+    
+    return prod_count
 
 
 ## Query products in Copernicus Scihub
@@ -221,36 +227,36 @@ def count_products(api,
 # Input - API object, initial date, final date, platform name, product type and sensor operational mode
 # Output - Dataframe of products and quantity of products
 
-def query(api,
+def query_products(api,
+    footprint,
     date_I,
     date_F,
     platform_name,
     product_type,
     sensor_op_mode):
-    
-    footprint = get_footprint('geojson/map.geojson')
+    """This function queries the products by using the querying information providade.
+    params: api: api object.
+    params: footprint: footprint informatio extracted from the geojson file.
+    params: date_I: initial sensing date.
+    params: date_F: final sensing date.
+    params: platform_name: name of the sensing platform.
+    params: product_type: name of product type.
+    params: sensor_op_mode: sensor operational mode.
+    """
 
-    prod_count = count_products(api,
-        footprint,
-        date_I,
-        date_F,
-        platform_name,
-        product_type,
-        sensor_op_mode)
-    
-    if prod_count > 1:
-        print(str(prod_count) + " products found!")
+    if(sensor_op_mode != ' '):
         products = api.query(footprint,
             date=(date_I, date_F),
             platformname=platform_name,
             producttype=product_type,
             sensoroperationalmode=sensor_op_mode)
-
-        return products_to_dataframe(api, products), prod_count
-
-    print("No product found!")
-    print("End!")
-    exit()
+    else:
+        products = api.query(footprint,
+            date=(date_I, date_F),
+            platformname=platform_name,
+            producttype=product_type)
+        
+    return products_to_dataframe(api, products)
 
 
 
