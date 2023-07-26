@@ -8,79 +8,97 @@ from snappy import ProductIO
 from snappy import HashMap
 
 
-def createProduct(operation_name, product_1, product_2=None, parameters=None):
-    """This function creates a product from a given operation name and parameters.
-    :param operation_name: The name of the operation.
+def createInterferogram(product_1, product_2, stage=None):
+    """This function creates an interferogram from two products up to a certain stage.
     :param product_1: The first product.
     :param product_2: The second product.
-    :param parameters: The parameters.
+    :param stage: The processing stage to stop at.
     """
-    if product_2:
-        return GPF.createProduct(
-            operation_name, parameters, product_1, product_2
+
+    stage_operations = {
+        "split": {
+            "operator": "TOPSAR-Split",
+            "parameters": {
+                "subswath": "IW1",
+                "selectedPolarisations": "VV",
+                "selectedBursts": "1",
+            },
+            "is_dual": True,
+        },
+        "orbit": {
+            "operator": "Apply-Orbit-File",
+            "parameters": {
+                "Orbit State Vectors": "Sentinel Precise (Auto Download)",
+                "Polynomial Degree": "3",
+            },
+            "is_dual": True,
+        },
+        "coregistration": {
+            "operator": "Coherence",
+            "parameters": {},
+            "is_dual": False,
+        },
+        "interferogram": {
+            "operator": "Interferogram",
+            "parameters": {
+                "Subtract flat-earth phase": "true",
+                "Degree of 'flat' polynomial": "5",
+                "Number of 'flat' estimation points": "501",
+                "Orbit interpolation degree": "3",
+                "Digital Elevation Model": "SRTM 1Sec HGT",
+                "Include coherence estimation": "true",
+                "Square Pixel": "true",
+                "Coherence Azimuth Window Size": "10",
+                "Coherence Range Window Size": "3",
+            },
+            "is_dual": False,
+        },
+        "deburst": {
+            "operator": "TOPSAR-Deburst",
+            "parameters": {},
+            "is_dual": False,
+        },
+        "filter": {
+            "operator": "GoldsteinPhaseFiltering",
+            "parameters": {},
+            "is_dual": False,
+        },
+    }
+
+    if stage is not None and stage not in stage_operations:
+        raise ValueError(
+            f"Invalid stage. Expected one of: {list(stage_operations.keys())}"
         )
-    else:
-        return GPF.createProduct(operation_name, parameters, product_1)
 
+    product_a, product_b = product_1, product_2
 
-def createInterferogram(product_1, product_2):
-    """This function creates an interferogram from two products.
-    :param product_1: The first product.
-    :param product_2: The second product.
-    """
+    for stage_name, operation in stage_operations.items():
+        params = HashMap()
+        for key, value in operation["parameters"].items():
+            params.put(key, value)
 
-    parameters = HashMap()
-    parameters.put("subswath", "IW1")  # Specify the desired subswath
-    parameters.put("selectedPolarisations", "VV")  # Specify the polarisation
-    # specify burst indexes
-    parameters.put("selectedBursts", "1")
-    product_tops_split_1 = GPF.createProduct(
-        "TOPSAR-Split", parameters, product_1
-    )
-    product_tops_split_2 = GPF.createProduct(
-        "TOPSAR-Split", parameters, product_2
-    )
-    # Appply orbit file
-    parameters = HashMap()
-    parameters.put("Orbit State Vectors", "Sentinel Precise (Auto Download)")
-    parameters.put("Polynomial Degree", "3")
-    product_orbit_1 = GPF.createProduct(
-        "Apply-Orbit-File", parameters, product_tops_split_1
-    )
-    product_orbit_2 = GPF.createProduct(
-        "Apply-Orbit-File", parameters, product_tops_split_2
-    )
+        if operation["is_dual"]:
+            product_a = GPF.createProduct(
+                operation["operator"], params, product_a
+            )
+            product_b = GPF.createProduct(
+                operation["operator"], params, product_b
+            )
+            result = (product_a, product_b)
+        else:
+            if stage_name == "coregistration":
+                result = GPF.createProduct(
+                    operation["operator"], params, product_a, product_b
+                )
+            else:
+                result = GPF.createProduct(
+                    operation["operator"], params, result
+                )
 
-    # Co-registration
-    correg_product = GPF.createProduct(
-        "Coherence", None, product_orbit_1, product_orbit_2
-    )
-    # Interferogram formation and coherence estimation
-    parameters = HashMap()
-    parameters.put("Subtract flat-earth phase", "true")
-    parameters.put("Degree of 'flat' polynomial", "5")
-    parameters.put("Number of 'flat' estimation points", "501")
-    parameters.put("Orbit interpolation degree", "3")
-    parameters.put("Digital Elevation Model", "SRTM 1Sec HGT")
-    parameters.put("Include coherence estimation", "true")
-    parameters.put("Square Pixel", "true")
-    # Check equation for coherence estimation window size
-    parameters.put("Coherence Azimuth Window Size", "10")
-    parameters.put("Coherence Range Window Size", "3")
-    product_interferogram_1 = GPF.createProduct(
-        "Interferogram", parameters, correg_product
-    )
-    # TOPSAR-Deburst
-    parameters = HashMap()
-    deburst_product = GPF.createProduct(
-        "TOPSAR-Deburst", None, product_interferogram_1
-    )
-    # GoldsteinPhaseFiltering
-    parameters = HashMap()
-    filtered_product = GPF.createProduct(
-        "GoldsteinPhaseFiltering", None, deburst_product
-    )
-    return filtered_product
+        if stage_name == stage:
+            break
+
+    return result
 
 
 # main
@@ -88,9 +106,10 @@ def main():
     # Read products
     file_path_1 = "../copernicus_products/S1A_IW_SLC__1SDV_20170705T075341_20170705T075408_017333_01CF0A_8A21.zip"
     file_path_2 = "../copernicus_products/S1A_IW_SLC__1SDV_20170729T075343_20170729T075410_017683_01D9B6_AB49.zip"
+
     product_1 = ProductIO.readProduct(file_path_1)
     product_2 = ProductIO.readProduct(file_path_2)
-    interferogram = createInterferogram(product_1, product_2)
+    interferogram = createInterferogram(product_1, product_2, stage="filter")
     # Execute and save
     output_file = "filtered_product.dim"
     ProductIO.writeProduct(interferogram, output_file, "BEAM-DIMAP")
